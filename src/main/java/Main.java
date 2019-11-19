@@ -23,12 +23,15 @@ public class Main {
 //        Model maluch = new Model(9,"126p", 161210, 100, Fiat);
 //       Model astra = new Model(10,"Astra", 453197, 116799, Opel);
 //        Model vectra = new Model(11,"Vectra", 453190, 116399, Opel);
-
-
+//
+//        System.out.println(vectra.getBrand().getId_brand());
 
 //        BrandService edit_marka = new BrandService();
-//        ModelService edit_model = new ModelService();
-//
+//        edit_marka.selectAllBrand();
+        ModelService edit_model = new ModelService();
+        edit_model.selectAllModel();
+
+        //
 //        edit_model.selectAllModel();
 
 //        edit_marka.addBrand(AUDI);

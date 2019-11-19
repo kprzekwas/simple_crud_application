@@ -112,11 +112,35 @@ public class BrandService {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(Select_all_Query);
 
-            preparedStatement.execute();
+                    ResultSet resultSet = preparedStatement.executeQuery();
+
+                    while (resultSet.next()) {
+
+                        int id_brand = resultSet.getInt("ID_BRAND");
+                        String name = resultSet.getString("NAME");
+                        String origin_country = resultSet.getString("ORIGIN_COUNTRY");
+                        String owner = resultSet.getString("NAME");
+                        int creation_year = resultSet.getInt("CREATION_YEAR");
+
+
+                        Brand obj = new Brand();
+                        obj.setId_brand(id_brand);
+                        obj.setName(name);
+                        obj.setOrigin_country(origin_country);
+                        obj.setOwner(owner);
+                        obj.setCreation_year(creation_year);
+
+                        System.out.println(obj);
+                    }
 
         } catch(SQLException e){
             e.printStackTrace();
         }
-
     }
 }
+
+//    private int id_brand;
+//    private String name;
+//    private String origin_country;
+//    private String owner;
+//    private int creation_year;

@@ -24,6 +24,7 @@ public class ModelService {
     private final String Select_All_Query = "SELECT id_model, name, serial_number, price, brand_id FROM Model";
     private final String Update_Query = "UPDATE Model SET name = ?, serial_number = ?, price = ?, brand_id = ? WHERE id_model = ?";
     private final String Delete_Query = "DELETE FROM Model WHERE id_model = ?";
+    private final String Select_all_Query = "SELECT * FROM MODEL";
 
     public ModelService() {
         try {
@@ -84,7 +85,6 @@ public class ModelService {
             preparedStatement.setDouble(3, model.getPrice());
             preparedStatement.setInt(4, model.getBrand().getId_brand());
 
-
             preparedStatement.execute();
 
         } catch(SQLException e){
@@ -109,5 +109,35 @@ public class ModelService {
 
     }
 
+    public void selectAllModel() {
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(Select_all_Query);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                int id_modelu = resultSet.getInt("ID_MODEL");
+                String name = resultSet.getString("NAME");
+                int seral_number = resultSet.getInt("SERIAL_NUMBER");
+                Double price = resultSet.getDouble("PRICE");
+                int id_brand = resultSet.getInt("BRAND_ID");
+
+
+                Model obj = new Model();
+                obj.setid_model(id_modelu);
+                obj.setName(name);
+                obj.setSerial_number(seral_number);
+                obj.setPrice(price);
+                obj.getBrand().setId_brand(id_brand);
+
+                System.out.println(obj);
+            }
+
+        } catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
 
 }
