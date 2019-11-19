@@ -3,8 +3,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import domain.Brand;
 import domain.Model;
-import service.BrandService;
+
 import service.ModelService;
+import service.*;
 
 import javax.swing.*;
 
@@ -58,7 +59,7 @@ public class Main {
 //        edit_model.addModel(vectra);
 
         //wyswietlenie modeli
-//        edit_model.selectAllModel();
+        edit_model.selectAllModel();
         //wyswietlenie marek
 //        edit_marka.selectAllBrand();
 
