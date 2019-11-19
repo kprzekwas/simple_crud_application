@@ -11,13 +11,13 @@ public class ModelService {
     private Statement statement;
     private final String DB_URL = "jdbc:hsqldb:hsql://localhost/workdb";
 
-    private final String Create_Query = "CREATE TABLE Model(\n"+
-            "id_model INT NOT NULL PRIMARY KEY ,\n"+
-            "name VARCHAR(40) NOT NULL,\n"+
-            "serial_number CHAR(6) UNIQUE NOT NULL,\n"+
-            "price BIGINT not null ,\n"+
-            "brand_id INT NOT NULL,\n"+
-            "FOREIGN KEY (brand_id) REFERENCES BRAND(id_brand) ON DELETE CASCADE"+
+    private final String Create_Query = "CREATE TABLE Model(\n" +
+            "id_model INT NOT NULL PRIMARY KEY ,\n" +
+            "name VARCHAR(40) NOT NULL,\n" +
+            "serial_number CHAR(6) UNIQUE NOT NULL,\n" +
+            "price BIGINT not null ,\n" +
+            "brand_id INT NOT NULL,\n" +
+            "FOREIGN KEY (brand_id) REFERENCES BRAND(id_brand) ON DELETE CASCADE" +
             ")";
     private final String Insert_Query = "INSERT INTO Model(id_model, name, serial_number, price, brand_id)" +
             "VALUES(?, ?, ?, ?, ?);";
@@ -25,6 +25,18 @@ public class ModelService {
     private final String Update_Query = "UPDATE Model SET name = ?, serial_number = ?, price = ?, brand_id = ? WHERE id_model = ?";
     private final String Delete_Query = "DELETE FROM Model WHERE id_model = ?";
     private final String Select_all_Query = "SELECT * FROM MODEL";
+    private final String DropTable_Query = "DROP TABLE MODEL";
+
+    private final String select_country_cars = "select BRAND.NAME as Brand, M.NAME as Model,origin_country as country, owner, serial_number, price from BRAND inner join MODEL M on BRAND.ID_BRAND = M.BRAND_ID\n" +
+            "where ORIGIN_COUNTRY = ? \n" +
+            "order by PRICE DESC";
+
+
+
+
+    private final String top_cars = "select top 1 BRAND.NAME as Brand, M.NAME as Model,origin_country as country, owner, serial_number, price from BRAND inner join MODEL M on BRAND.ID_BRAND = M.BRAND_ID\n" +
+            "order by PRICE DESC";
+
 
     public ModelService() {
         try {
@@ -33,6 +45,7 @@ public class ModelService {
             System.out.println("Connected");
 
             statement = connection.createStatement();
+
 
             ResultSet rs = connection.getMetaData().getTables(null, null, null, null);
 
@@ -49,15 +62,17 @@ public class ModelService {
                 statement.executeUpdate(Create_Query);
                 System.out.println("Stworzono tabele.");
             }
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
 
-
+//transakcje
     public void addModel(Model model) {
 
         try {
+            connection.setAutoCommit(false);
             PreparedStatement preparedStatement = connection.prepareStatement(Insert_Query);
 
             preparedStatement.setInt(1, model.getid_model());
@@ -66,9 +81,16 @@ public class ModelService {
             preparedStatement.setDouble(4, model.getPrice());
             preparedStatement.setInt(5, model.getBrand().getId_brand());
 
-            preparedStatement.execute();
+            preparedStatement.executeUpdate();
 
-        } catch(SQLException e){
+            connection.commit();
+            connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.printStackTrace();
         }
 
@@ -87,7 +109,7 @@ public class ModelService {
 
             preparedStatement.execute();
 
-        } catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -103,7 +125,7 @@ public class ModelService {
 
             preparedStatement.execute();
 
-        } catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -118,24 +140,95 @@ public class ModelService {
 
             while (resultSet.next()) {
 
-                int id_modelu = resultSet.getInt("ID_MODEL");
+
+                int id_model = resultSet.getInt("ID_MODEL");
                 String name = resultSet.getString("NAME");
-                int seral_number = resultSet.getInt("SERIAL_NUMBER");
+                String serial_number = resultSet.getString("SERIAL_NUMBER");
                 Double price = resultSet.getDouble("PRICE");
-                int id_brand = resultSet.getInt("BRAND_ID");
+                int brand = resultSet.getInt("BRAND_ID");
 
-
-                Model obj = new Model();
-                obj.setid_model(id_modelu);
-                obj.setName(name);
-                obj.setSerial_number(seral_number);
-                obj.setPrice(price);
-                obj.getBrand().setId_brand(id_brand);
-
-                System.out.println(obj);
+                System.out.println("Model{" +
+                        "id_model=" + id_model +
+                        ", name='" + name + '\'' +
+                        ", serial_number='" + serial_number + '\'' +
+                        ", price='" + price + '\'' +
+                        ", brand=" + brand +
+                        '}');
             }
 
-        } catch(SQLException e){
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void dropTable() throws SQLException {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(DropTable_Query);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void country_cars(String country) {
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(select_country_cars);
+
+            preparedStatement.setString(1, country);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+
+                String brand = resultSet.getString("BRAND");
+                String model = resultSet.getString("MODEL");
+                String owner = resultSet.getString("OWNER");
+                int number = resultSet.getInt("SERIAL_NUMBER");
+                Double price = resultSet.getDouble("PRICE");
+
+                System.out.println(
+                        "marka " + brand +
+                                "| model '" + model + '\'' +
+                                "| countru '" + country + '\'' +
+                                "| owner '" + owner + '\'' +
+                                "| number '" + number + '\'' +
+                                "| price " + price);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void top_cars() {
+
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(top_cars);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+
+                String brand = resultSet.getString("BRAND");
+                String model = resultSet.getString("MODEL");
+                String country = resultSet.getString("COUNTRY");
+                String owner = resultSet.getString("OWNER");
+                int number = resultSet.getInt("SERIAL_NUMBER");
+                Double price = resultSet.getDouble("PRICE");
+
+                System.out.println(
+                        "marka " + brand +
+                                "| model '" + model + '\'' +
+                                "| countru '" + country + '\'' +
+                                "| owner '" + owner + '\'' +
+                                "| number '" + number + '\'' +
+                                "| price " + price);
+            }
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }

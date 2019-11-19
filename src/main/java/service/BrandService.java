@@ -4,6 +4,7 @@ import domain.Model;
 import domain.Brand;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class BrandService {
 
@@ -26,6 +27,9 @@ public class BrandService {
     private final String Update_Query = "UPDATE Brand SET name = ?, origin_country = ?, owner = ?, creation_year = ? WHERE id_brand = ?";
     private final String Delete_Query = "DELETE FROM Brand WHERE id_brand = ?";
     private final String Select_all_Query = "SELECT * FROM Brand";
+    private final String DropTable_Query = "DROP TABLE BRAND";
+
+
 
     public BrandService() {
         try {
@@ -42,7 +46,6 @@ public class BrandService {
             while (rs.next()) {
                 if ("Brand".equalsIgnoreCase(rs.getString("TABLE_NAME"))) {
                     tableExists = true;
-                    System.out.println("tabela Brand juz istnieje...");
                     break;
                 }
             }
@@ -72,7 +75,6 @@ public class BrandService {
         } catch(SQLException e){
             e.printStackTrace();
         }
-
     }
 
     public void updateBrand(int id, Brand brand) {
@@ -107,6 +109,13 @@ public class BrandService {
         }
 
     }
+
+    public void dropTable() throws SQLException {
+        connection = DriverManager.getConnection(DB_URL);
+        PreparedStatement preparedStatement = connection.prepareStatement(DropTable_Query);
+        preparedStatement.execute();
+    }
+    
     public void selectAllBrand() {
 
         try {
@@ -138,9 +147,3 @@ public class BrandService {
         }
     }
 }
-
-//    private int id_brand;
-//    private String name;
-//    private String origin_country;
-//    private String owner;
-//    private int creation_year;
